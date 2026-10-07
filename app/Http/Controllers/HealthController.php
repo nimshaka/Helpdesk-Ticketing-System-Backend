@@ -6,12 +6,12 @@ use Illuminate\Http\JsonResponse;
 
 class HealthController extends Controller
 {
-    public function index(): jsonResponse
+    public function index(): JsonResponse
     {
-      return response()->json([
-        'success' => true,
-        'data'    => ['status' => 'ok' ],
-        'message' => 'API is running',
-      ]);
+        return response()->json([
+            'success' => true,
+            'data' => ['status' => 'ok'],
+            'message' => 'API is running',
+        ]);
     }
 }
