@@ -8,14 +8,14 @@ enum TicketStatus: string
     case InProgress = 'in_progress';
     case Resolved = 'resolved';
     case WaitingForCustomer = 'waiting_for_customer';
-}
 
-public function label(): string
-{
-    return match ($this) {
-        self::Open => 'Open',
-        self::InProgress => 'In Progress',
-        self::Resolved => 'Resolved',
-        self::WaitingForCustomer => 'Waiting for Customer',
-    };
+    public function label(): string
+    {
+        return match ($this) {
+            self::Open => 'Open',
+            self::InProgress => 'In Progress',
+            self::Resolved => 'Resolved',
+            self::WaitingForCustomer => 'Waiting for Customer',
+        };
+    }
 }

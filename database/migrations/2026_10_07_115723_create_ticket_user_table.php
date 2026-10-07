@@ -13,7 +13,13 @@ return new class extends Migration
     {
         Schema::create('ticket_user', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('ticket_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('assigned_by')->constrained('users');
+            $table->timestamp('assigned_at');
+            $table->timestamp('unassigned_at')->nullable();
+            $table->index(['ticket_id', 'unassigned_at']);
+            $table->index(['user_id', 'unassigned_at']);
         });
     }
 
