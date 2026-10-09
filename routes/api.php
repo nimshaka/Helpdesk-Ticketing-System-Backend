@@ -1,10 +1,9 @@
 <?php
 
-use App\Http\Controllers\RoleCheckController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\RoleCheckController;
 use Illuminate\Support\Facades\Route;
-
 
 Route::get('health', [HealthController::class, 'index']);
 

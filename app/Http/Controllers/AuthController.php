@@ -8,6 +8,7 @@ use App\Handlers\Auth\RegisterHandler;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -47,7 +48,7 @@ class AuthController extends Controller
     }
 
     /**
-     * @param  array{token: string, user: \App\Models\User}  $result
+     * @param  array{token: string, user: User}  $result
      * @return array<string, mixed>
      */
     private function tokenPayload(array $result): array
