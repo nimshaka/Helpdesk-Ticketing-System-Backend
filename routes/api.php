@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 
 Route::get('health', [HealthController::class, 'index']);
 
@@ -15,4 +16,15 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
     });
+});
+
+
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::post('/', [UserController::class, 'store']);
+    Route::get('{user}', [UserController::class, 'show']);
+    Route::patch('{user}', [UserController::class, 'update']);
+    Route::patch('{user}/activate', [UserController::class, 'activate']);
+    Route::patch('{user}/deactivate', [UserController::class, 'deactivate']);
+    Route::patch('{user}/role', [UserController::class, 'updateRole']);
 });
