@@ -29,7 +29,6 @@ final class ApiResponse
         ], $status);
     }
 
-
     public static function paginated(
         LengthAwarePaginator $paginator,
         string $resourceClass,

@@ -32,6 +32,6 @@ class ListUsersHandler
             $query->where('is_active', filter_var($filters['is_active'], FILTER_VALIDATE_BOOLEAN));
         }
 
-        return $query->orderBy('id')->paginate((int) ($filters['per_page'] ?? 15));
+        return $query->orderBy('id')->paginate((int) ($filters['per_page'] ?? 10));
     }
 }
