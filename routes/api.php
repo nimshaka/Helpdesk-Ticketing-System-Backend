@@ -2,16 +2,10 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
-use App\Http\Controllers\RoleCheckController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('health', [HealthController::class, 'index']);
-
-Route::middleware('auth:sanctum')->prefix('role-checks')->group(function () {
-    Route::get('admin', [RoleCheckController::class, 'admin'])->middleware('role:admin');
-    Route::get('agent', [RoleCheckController::class, 'agent'])->middleware('role:agent|admin');
-    Route::get('customer', [RoleCheckController::class, 'customer'])->middleware('role:customer');
-});
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->middleware('throttle:5,1');
@@ -21,4 +15,14 @@ Route::prefix('auth')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
     });
+});
+
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::post('/', [UserController::class, 'store']);
+    Route::get('{user}', [UserController::class, 'show']);
+    Route::patch('{user}', [UserController::class, 'update']);
+    Route::patch('{user}/activate', [UserController::class, 'activate']);
+    Route::patch('{user}/deactivate', [UserController::class, 'deactivate']);
+    Route::patch('{user}/role', [UserController::class, 'updateRole']);
 });
