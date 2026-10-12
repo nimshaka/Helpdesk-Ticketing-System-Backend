@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Enums\UserRole;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -53,6 +55,46 @@ class Ticket extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(TicketReply::class);
+    }
+
+    public function scopeHeldBy(Builder $query, User $user): Builder
+    {
+        return $query->whereHas(
+            'activeAgent',
+            fn (Builder $agent) => $agent->where('users.id', $user->id),
+        );
+    }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where(function (Builder $builder) use ($term): void {
+            $builder->where('subject', 'like', "%{$term}%")
+                ->orWhere('description', 'like', "%{$term}%");
+        });
+    }
+
+    public function scopeUnassigned(Builder $query): Builder
+    {
+        return $query->whereDoesntHave('activeAgent');
+    }
+
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->hasRole(UserRole::Admin)) {
+            return $query;
+        }
+
+        if ($user->hasRole(UserRole::Agent)) {
+            return $query->where(function (Builder $builder) use ($user): void {
+                $builder->unassigned()->orWhere(fn (Builder $mine) => $mine->heldBy($user));
+            });
+        }
+
+        if ($user->hasRole(UserRole::Customer)) {
+            return $query->where('customer_id', $user->id);
+        }
+
+        return $query->whereRaw('1 = 0');
     }
 
     public function statusHistories(): HasMany
