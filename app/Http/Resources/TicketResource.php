@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin Ticket
+ * @mixin \App\Models\Ticket
  */
 class TicketResource extends JsonResource
 {
@@ -29,6 +28,14 @@ class TicketResource extends JsonResource
                 'id' => $this->customer->id,
                 'name' => $this->customer->name,
             ]),
+            'agent' => $this->whenLoaded('activeAgent', function () {
+                $agent = $this->activeAgent->first();
+
+                return $agent === null ? null : [
+                    'id' => $agent->id,
+                    'name' => $agent->name,
+                ];
+            }),
             'last_activity_at' => $this->last_activity_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

@@ -29,5 +29,6 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('users')->group(functi
 });
 
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
+    Route::get('/', [TicketController::class, 'index']);
     Route::post('/', [TicketController::class, 'store'])->middleware('role:customer');
 });

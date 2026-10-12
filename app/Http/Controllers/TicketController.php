@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Handlers\Ticket\CreateTicketHandler;
+use App\Handlers\Ticket\ListTicketsHandler;
+use App\Http\Requests\Ticket\ListTicketsRequest;
 use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Resources\TicketResource;
 use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
+
 
 class TicketController extends Controller
 {
@@ -16,6 +19,16 @@ class TicketController extends Controller
             new TicketResource($handler->handle($request->user(), $request->validated())),
             'Ticket created.',
             201,
+        );
+    }
+
+
+    public function index(ListTicketsRequest $request, ListTicketsHandler $handler): JsonResponse
+    {
+        return ApiResponse::paginated(
+            $handler->handle($request->user(), $request->validated()),
+            TicketResource::class,
+            'Tickets retrieved.',
         );
     }
 }
