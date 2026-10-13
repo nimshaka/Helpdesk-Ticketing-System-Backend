@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TicketStatusHistory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\TicketStatusHistory
+ * @mixin TicketStatusHistory
  */
 class TicketStatusHistoryResource extends JsonResource
 {
