@@ -36,6 +36,17 @@ class TicketResource extends JsonResource
                     'name' => $agent->name,
                 ];
             }),
+            'replies' => TicketReplyResource::collection($this->whenLoaded('replies')),
+            'status_history' => TicketStatusHistoryResource::collection($this->whenLoaded('statusHistories')),
+            'assignments' => $this->whenLoaded('agents', fn () => $this->agents->map(fn ($agent) => [
+                'agent' => [
+                    'id' => $agent->id,
+                    'name' => $agent->name,
+                ],
+                'assigned_by' => $agent->pivot->assigned_by,
+                'assigned_at' => $agent->pivot->assigned_at,
+                'unassigned_at' => $agent->pivot->unassigned_at,
+            ])->all()),
             'last_activity_at' => $this->last_activity_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
