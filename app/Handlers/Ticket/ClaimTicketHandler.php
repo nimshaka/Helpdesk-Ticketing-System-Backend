@@ -5,6 +5,7 @@ namespace App\Handlers\Ticket;
 use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\TicketWorkflowService;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
@@ -30,16 +31,7 @@ class ClaimTicketHandler
                 'assigned_at' => $now,
             ]);
 
-            $locked->statusHistories()->create([
-                'changed_by' => $agent->id,
-                'from_status' => TicketStatus::Open,
-                'to_status' => TicketStatus::InProgress,
-            ]);
-
-            $locked->update([
-                'status' => TicketStatus::InProgress,
-                'last_activity_at' => $now,
-            ]);
+            $this->workflow()->transition($locked, TicketStatus::InProgress, $agent, $now);
 
             return $this->withDetails($locked);
         });
@@ -53,5 +45,10 @@ class ClaimTicketHandler
             'statusHistories' => fn ($query) => $query->orderBy('id'),
             'statusHistories.changedBy',
         ]);
+    }
+
+    private function workflow(): TicketWorkflowService
+    {
+        return app(TicketWorkflowService::class);
     }
 }

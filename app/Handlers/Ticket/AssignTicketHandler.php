@@ -6,6 +6,7 @@ use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\TicketWorkflowService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
@@ -36,7 +37,6 @@ class AssignTicketHandler
             }
 
             $now = now();
-            $wasOpen = $locked->status === TicketStatus::Open;
 
             DB::table('ticket_user')
                 ->where('ticket_id', $locked->id)
@@ -48,17 +48,11 @@ class AssignTicketHandler
                 'assigned_at' => $now,
             ]);
 
-            if ($wasOpen) {
-                $locked->statusHistories()->create([
-                    'changed_by' => $admin->id,
-                    'from_status' => TicketStatus::Open,
-                    'to_status' => TicketStatus::InProgress,
-                ]);
-                $locked->status = TicketStatus::InProgress;
+            if ($locked->status === TicketStatus::Open) {
+                $this->workflow()->transition($locked, TicketStatus::InProgress, $admin, $now);
+            } else {
+                $locked->update(['last_activity_at' => $now]);
             }
-
-            $locked->last_activity_at = $now;
-            $locked->save();
 
             return $this->withDetails($locked);
         });
@@ -72,5 +66,10 @@ class AssignTicketHandler
             'statusHistories' => fn ($query) => $query->orderBy('id'),
             'statusHistories.changedBy',
         ]);
+    }
+
+    private function workflow(): TicketWorkflowService
+    {
+        return app(TicketWorkflowService::class);
     }
 }
