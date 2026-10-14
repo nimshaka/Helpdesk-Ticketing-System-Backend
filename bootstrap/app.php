@@ -55,9 +55,9 @@ return Application::configure(basePath: dirname(__DIR__))
                 405 => 'Method not allowed.',
                 429 => 'Too many requests. Please try again later.',
             ];
-                $message = in_array($status, [403, 409], true) && $e->getMessage() !== ''
-                ? $e->getMessage()
-                : ($messages[$status] ?? 'Request failed.');
+            $message = in_array($status, [403, 409], true) && $e->getMessage() !== ''
+            ? $e->getMessage()
+            : ($messages[$status] ?? 'Request failed.');
 
             return ApiResponse::error($message, $status)->withHeaders($e->getHeaders());
         });
