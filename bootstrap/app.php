@@ -55,7 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 405 => 'Method not allowed.',
                 429 => 'Too many requests. Please try again later.',
             ];
-            $message = $status === 403 && $e->getMessage() !== ''
+                $message = in_array($status, [403, 409], true) && $e->getMessage() !== ''
                 ? $e->getMessage()
                 : ($messages[$status] ?? 'Request failed.');
 
