@@ -7,11 +7,13 @@ use App\Handlers\Ticket\ClaimTicketHandler;
 use App\Handlers\Ticket\CreateTicketHandler;
 use App\Handlers\Ticket\ListTicketsHandler;
 use App\Handlers\Ticket\ShowTicketHandler;
+use App\Handlers\Ticket\UpdateTicketStatusHandler;
 use App\Http\Requests\Ticket\AssignTicketRequest;
 use App\Http\Requests\Ticket\ClaimTicketRequest;
 use App\Http\Requests\Ticket\ListTicketsRequest;
 use App\Http\Requests\Ticket\ShowTicketRequest;
 use App\Http\Requests\Ticket\StoreTicketRequest;
+use App\Http\Requests\Ticket\UpdateTicketStatusRequest;
 use App\Http\Resources\TicketResource;
 use App\Models\Ticket;
 use App\Support\ApiResponse;
@@ -58,6 +60,14 @@ class TicketController extends Controller
         return ApiResponse::success(
             new TicketResource($handler->handle($request->user(), $ticket)),
             'Ticket retrieved.',
+        );
+    }
+
+    public function updateStatus(UpdateTicketStatusRequest $request, Ticket $ticket, UpdateTicketStatusHandler $handler): JsonResponse
+    {
+        return ApiResponse::success(
+            new TicketResource($handler->handle($request->user(), $ticket, $request->targetStatus())),
+            'Ticket status updated.',
         );
     }
 }
