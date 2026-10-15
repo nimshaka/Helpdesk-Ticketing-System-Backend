@@ -4,6 +4,7 @@ namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketWorkflowService;
@@ -12,9 +13,11 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class UpdateTicketStatusHandler
 {
+    use QueuesNotifications;
+
     public function handle(User $actor, Ticket $ticket, TicketStatus $to): Ticket
     {
-        return DB::transaction(function () use ($actor, $ticket, $to): Ticket {
+        $updated = DB::transaction(function () use ($actor, $ticket, $to): Ticket {
             $locked = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
 
             if (! $this->stillAllowed($actor, $locked)) {
@@ -25,6 +28,12 @@ class UpdateTicketStatusHandler
 
             return $this->withDetails($locked);
         });
+
+        if ($to === TicketStatus::Resolved) {
+            $this->queueMail($this->notifications()->forTicketResolved($updated, $actor));
+        }
+
+        return $updated;
     }
 
     private function stillAllowed(User $actor, Ticket $ticket): bool

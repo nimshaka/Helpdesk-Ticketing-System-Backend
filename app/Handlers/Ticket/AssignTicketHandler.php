@@ -4,6 +4,7 @@ namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketWorkflowService;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class AssignTicketHandler
 {
+    use QueuesNotifications;
+
     public function handle(User $admin, Ticket $ticket, int $agentId): Ticket
     {
         $agent = User::query()->findOrFail($agentId);
@@ -23,7 +26,7 @@ class AssignTicketHandler
             ]);
         }
 
-        return DB::transaction(function () use ($admin, $ticket, $agent): Ticket {
+        $assigned = DB::transaction(function () use ($admin, $ticket, $agent): Ticket {
             $locked = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
 
             if ($locked->status === TicketStatus::Resolved) {
@@ -56,6 +59,10 @@ class AssignTicketHandler
 
             return $this->withDetails($locked);
         });
+
+        $this->queueMail($this->notifications()->forTicketAssigned($assigned, $agent, $admin));
+
+        return $assigned;
     }
 
     private function withDetails(Ticket $ticket): Ticket
