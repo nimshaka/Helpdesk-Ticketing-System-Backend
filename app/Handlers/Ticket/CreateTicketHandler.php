@@ -3,10 +3,10 @@
 namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
-use App\Mail\NewTicketMail;
-use App\Mail\TicketReceivedMail;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Services\TicketNotificationService;
+use App\Support\PendingMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
@@ -36,14 +36,23 @@ class CreateTicketHandler
             return $ticket->load('customer');
         });
 
-        $this->queueEmails($ticket);
+        $this->queue($this->notifications()->forTicketCreated($ticket));
 
         return $ticket;
     }
 
-    private function queueEmails(Ticket $ticket): void
+    private function notifications(): TicketNotificationService
     {
-        Mail::to($ticket->customer)->queue(new TicketReceivedMail($ticket));
-        Mail::to(config('helpdesk.support_email'))->queue(new NewTicketMail($ticket));
+        return app(TicketNotificationService::class);
+    }
+
+    /**
+     * @param  list<PendingMail>  $pending
+     */
+    private function queue(array $pending): void
+    {
+        foreach ($pending as $item) {
+            Mail::to($item->recipient)->queue($item->mailable);
+        }
     }
 }

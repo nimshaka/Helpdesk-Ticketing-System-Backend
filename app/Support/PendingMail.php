@@ -10,6 +10,5 @@ final readonly class PendingMail
     public function __construct(
         public User|string $recipient,
         public Mailable $mailable,
-    ) {
-    }
+    ) {}
 }
