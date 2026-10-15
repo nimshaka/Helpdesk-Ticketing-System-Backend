@@ -3,6 +3,7 @@
 namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
+use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Services\TicketWorkflowService;
@@ -11,9 +12,11 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class ClaimTicketHandler
 {
+    use QueuesNotifications;
+
     public function handle(User $agent, Ticket $ticket): Ticket
     {
-        return DB::transaction(function () use ($agent, $ticket): Ticket {
+        $claimed = DB::transaction(function () use ($agent, $ticket): Ticket {
             $locked = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
 
             if ($locked->activeAgent()->exists()) {
@@ -35,6 +38,10 @@ class ClaimTicketHandler
 
             return $this->withDetails($locked);
         });
+
+        $this->queueMail($this->notifications()->forTicketAssigned($claimed, $agent, $agent));
+
+        return $claimed;
     }
 
     private function withDetails(Ticket $ticket): Ticket

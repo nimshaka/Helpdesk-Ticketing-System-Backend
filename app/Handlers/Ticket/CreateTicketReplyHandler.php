@@ -2,6 +2,7 @@
 
 namespace App\Handlers\Ticket;
 
+use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
@@ -11,9 +12,11 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class CreateTicketReplyHandler
 {
+    use QueuesNotifications;
+
     public function handle(User $author, Ticket $ticket, string $body): TicketReply
     {
-        return DB::transaction(function () use ($author, $ticket, $body): TicketReply {
+        $reply = DB::transaction(function () use ($author, $ticket, $body): TicketReply {
             $locked = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
             $workflow = $this->workflow();
 
@@ -40,6 +43,10 @@ class CreateTicketReplyHandler
 
             return $reply->load('user.roles');
         });
+
+        $this->queueMail($this->notifications()->forReply($reply->ticket, $reply));
+
+        return $reply;
     }
 
     private function workflow(): TicketWorkflowService

@@ -3,15 +3,15 @@
 namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
+use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
 use App\Models\User;
-use App\Services\TicketNotificationService;
-use App\Support\PendingMail;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class CreateTicketHandler
 {
+    use QueuesNotifications;
+
     /**
      * @param  array{subject: string, description: string, priority: string}  $data
      */
@@ -36,23 +36,8 @@ class CreateTicketHandler
             return $ticket->load('customer');
         });
 
-        $this->queue($this->notifications()->forTicketCreated($ticket));
+        $this->queueMail($this->notifications()->forTicketCreated($ticket));
 
         return $ticket;
-    }
-
-    private function notifications(): TicketNotificationService
-    {
-        return app(TicketNotificationService::class);
-    }
-
-    /**
-     * @param  list<PendingMail>  $pending
-     */
-    private function queue(array $pending): void
-    {
-        foreach ($pending as $item) {
-            Mail::to($item->recipient)->queue($item->mailable);
-        }
     }
 }
