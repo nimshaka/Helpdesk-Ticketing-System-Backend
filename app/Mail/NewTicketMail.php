@@ -16,9 +16,7 @@ class NewTicketMail extends Mailable implements ShouldQueue
 
     public int $tries = 3;
 
-    public function __construct(public Ticket $ticket)
-    {
-    }
+    public function __construct(public Ticket $ticket) {}
 
     public function content(): Content
     {

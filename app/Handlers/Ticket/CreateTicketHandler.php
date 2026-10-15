@@ -3,9 +3,12 @@
 namespace App\Handlers\Ticket;
 
 use App\Enums\TicketStatus;
+use App\Mail\NewTicketMail;
+use App\Mail\TicketReceivedMail;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class CreateTicketHandler
 {
@@ -14,7 +17,7 @@ class CreateTicketHandler
      */
     public function handle(User $customer, array $data): Ticket
     {
-        return DB::transaction(function () use ($customer, $data): Ticket {
+        $ticket = DB::transaction(function () use ($customer, $data): Ticket {
             $ticket = Ticket::create([
                 'subject' => $data['subject'],
                 'description' => $data['description'],
@@ -32,5 +35,15 @@ class CreateTicketHandler
 
             return $ticket->load('customer');
         });
+
+        $this->queueEmails($ticket);
+
+        return $ticket;
+    }
+
+    private function queueEmails(Ticket $ticket): void
+    {
+        Mail::to($ticket->customer)->queue(new TicketReceivedMail($ticket));
+        Mail::to(config('helpdesk.support_email'))->queue(new NewTicketMail($ticket));
     }
 }
