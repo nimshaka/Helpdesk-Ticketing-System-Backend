@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketReplyController;
@@ -28,6 +29,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('users')->group(functi
     Route::patch('{user}/deactivate', [UserController::class, 'deactivate']);
     Route::patch('{user}/role', [UserController::class, 'updateRole']);
 });
+
+Route::get('dashboard', [DashboardController::class, 'index'])->middleware('auth:sanctum');
 
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     Route::get('/', [TicketController::class, 'index']);
