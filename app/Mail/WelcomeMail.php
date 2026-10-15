@@ -16,9 +16,7 @@ class WelcomeMail extends Mailable implements ShouldQueue
 
     public int $tries = 3;
 
-    public function __construct(public User $user)
-    {
-    }
+    public function __construct(public User $user) {}
 
     public function content(): Content
     {
