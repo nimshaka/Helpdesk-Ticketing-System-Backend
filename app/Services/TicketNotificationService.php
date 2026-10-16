@@ -12,9 +12,37 @@ use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
 use App\Support\PendingMail;
+use App\Enums\TicketStatus;
+use App\Mail\AgentReminderMail;
+use App\Mail\CustomerReminderMail;
 
 class TicketNotificationService
 {
+
+
+       /**
+     * Who must be reminded about a stale ticket: the agent when the agent owes
+     * the next action, the customer when the customer does.
+     *
+     * @return list<PendingMail>
+     */
+    public function forReminder(Ticket $ticket): array
+    {
+        $ticket->loadMissing(['customer', 'activeAgent']);
+
+        $pending = match ($ticket->status) {
+            TicketStatus::InProgress => $ticket->activeAgent
+                ->map(fn (User $agent): PendingMail => new PendingMail($agent, new AgentReminderMail($ticket)))
+                ->all(),
+            TicketStatus::WaitingForCustomer => [
+                new PendingMail($ticket->customer, new CustomerReminderMail($ticket)),
+            ],
+            default => [],
+        };
+
+        return $this->onlyActive($pending);
+    }
+
     /**
      * Who must be told about a new reply: the agent when the customer wrote it,
      * the customer when staff wrote it.
@@ -88,6 +116,21 @@ class TicketNotificationService
     public function supportAddress(): string
     {
         return (string) config('helpdesk.support_email');
+    }
+
+
+        /**
+     * Never email a deactivated account.
+     *
+     * @param  list<PendingMail>  $pending
+     * @return list<PendingMail>
+     */
+    private function onlyActive(array $pending): array
+    {
+        return array_values(array_filter(
+            $pending,
+            fn (PendingMail $item): bool => ! ($item->recipient instanceof User) || $item->recipient->is_active,
+        ));
     }
 
     /**
