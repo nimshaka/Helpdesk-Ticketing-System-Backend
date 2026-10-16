@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\TicketStatus;
+use App\Mail\AgentReminderMail;
+use App\Mail\CustomerReminderMail;
 use App\Mail\CustomerRepliedMail;
 use App\Mail\NewTicketMail;
 use App\Mail\StaffRepliedMail;
@@ -12,15 +15,10 @@ use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
 use App\Support\PendingMail;
-use App\Enums\TicketStatus;
-use App\Mail\AgentReminderMail;
-use App\Mail\CustomerReminderMail;
 
 class TicketNotificationService
 {
-
-
-       /**
+    /**
      * Who must be reminded about a stale ticket: the agent when the agent owes
      * the next action, the customer when the customer does.
      *
@@ -118,8 +116,7 @@ class TicketNotificationService
         return (string) config('helpdesk.support_email');
     }
 
-
-        /**
+    /**
      * Never email a deactivated account.
      *
      * @param  list<PendingMail>  $pending
