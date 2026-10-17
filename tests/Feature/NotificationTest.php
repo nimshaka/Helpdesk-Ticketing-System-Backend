@@ -9,13 +9,13 @@ use App\Mail\StaffRepliedMail;
 use App\Mail\TicketAssignedMail;
 use App\Mail\TicketReceivedMail;
 use App\Mail\TicketResolvedMail;
+use App\Mail\WelcomeMail;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 use Tests\ApiTestCase;
 
 class NotificationTest extends ApiTestCase
 {
-
     public function test_registration_queues_the_welcome_email(): void
     {
         $this->postJson('/api/auth/register', [
@@ -25,7 +25,7 @@ class NotificationTest extends ApiTestCase
             'password_confirmation' => 'password123',
         ])->assertCreated();
 
-        Mail::assertQueued(\App\Mail\WelcomeMail::class, fn ($mail) => $mail->hasTo('nimal@helpdesk.test'));
+        Mail::assertQueued(WelcomeMail::class, fn ($mail) => $mail->hasTo('nimal@helpdesk.test'));
         Mail::assertQueuedCount(1);
     }
 
@@ -115,8 +115,6 @@ class NotificationTest extends ApiTestCase
             $this->assertTrue(is_subclass_of($mail, ShouldQueue::class), "{$mail} must implement ShouldQueue");
         }
     }
-
-    
 
     public function test_refused_requests_queue_nothing(): void
     {

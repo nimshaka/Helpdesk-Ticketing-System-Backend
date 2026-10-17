@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Models\TicketReply;
 use App\Models\User;
