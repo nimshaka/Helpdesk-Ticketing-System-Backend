@@ -4,7 +4,6 @@ namespace App\Http\Requests\User;
 
 use App\Http\Requests\AdminRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 
 class UpdateUserRequest extends AdminRequest
 {
@@ -14,15 +13,13 @@ class UpdateUserRequest extends AdminRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|required|string|max:255',
+            'name' => 'required_without:email|string|max:255',
             'email' => [
-                'sometimes',
-                'required',
+                'required_without:name',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->route('user')),
             ],
-            'password' => ['sometimes', 'required', 'string', Password::min(8)],
         ];
     }
 }

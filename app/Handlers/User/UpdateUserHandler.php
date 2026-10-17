@@ -3,6 +3,7 @@
 namespace App\Handlers\User;
 
 use App\Models\User;
+use Illuminate\Support\Arr;
 
 class UpdateUserHandler
 {
@@ -11,7 +12,7 @@ class UpdateUserHandler
      */
     public function handle(User $user, array $data): User
     {
-        $user->update($data);
+        $user->update(Arr::only($data, ['name', 'email']));
 
         return $user->load('roles');
     }
