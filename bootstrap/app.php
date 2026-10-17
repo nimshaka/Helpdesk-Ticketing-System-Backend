@@ -25,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
+        $middleware->redirectGuestsTo(fn (Request $request) => null);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $isApi = fn (Request $request): bool => $request->is('api/*') || $request->expectsJson();
