@@ -31,6 +31,7 @@ class Ticket extends Model
             'last_activity_at' => 'datetime',
             'priority' => TicketPriority::class,
             'status' => TicketStatus::class,
+            'last_reminded_at' => 'datetime',
         ];
     }
 
@@ -63,6 +64,20 @@ class Ticket extends Model
             'activeAgent',
             fn (Builder $agent) => $agent->where('users.id', $user->id),
         );
+    }
+
+    public function scopeNeedingReminder(Builder $query): Builder
+    {
+        return $query
+            ->whereIn('status', [
+                TicketStatus::InProgress->value,
+                TicketStatus::WaitingForCustomer->value,
+            ])
+            ->where('last_activity_at', '<=', now()->subHours((int) config('helpdesk.reminder_after_hours')))
+            ->where(function (Builder $builder): void {
+                $builder->whereNull('last_reminded_at')
+                    ->orWhere('last_reminded_at', '<', now()->startOfDay());
+            });
     }
 
     public function scopeSearch(Builder $query, string $term): Builder
