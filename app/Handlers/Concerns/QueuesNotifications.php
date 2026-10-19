@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Mail;
 
 trait QueuesNotifications
 {
-    protected function notifications(): TicketNotificationService
+    protected function getTicketNotificationService(): TicketNotificationService
     {
         return app(TicketNotificationService::class);
     }
@@ -16,7 +16,7 @@ trait QueuesNotifications
     /**
      * @param  list<PendingMail>  $pending
      */
-    protected function queueMail(array $pending): void
+    protected function queueMailNotifications(array $pending): void
     {
         foreach ($pending as $item) {
             Mail::to($item->recipient)->queue($item->mailable);

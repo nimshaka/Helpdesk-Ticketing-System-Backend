@@ -19,12 +19,35 @@ use App\Support\PendingMail;
 class TicketNotificationService
 {
     /**
-     * Who must be reminded about a stale ticket: the agent when the agent owes
-     * the next action, the customer when the customer does.
-     *
      * @return list<PendingMail>
      */
-    public function forReminder(Ticket $ticket): array
+    public function ticketAssignedNotificationService(Ticket $ticket, User $agent, User $actor): array
+    {
+        $ticket->loadMissing('customer');
+
+        return $this->withoutTicketNotificationActorService(
+            [new PendingMail($agent, new TicketAssignedMail($ticket, $actor))],
+            $actor,
+        );
+    }
+
+    /**
+     * @return list<PendingMail>
+     */
+    public function ticketCreatedNotificationService(Ticket $ticket): array
+    {
+        $ticket->loadMissing('customer');
+
+        return [
+            new PendingMail($ticket->customer, new TicketReceivedMail($ticket)),
+            new PendingMail($this->ticketSupportAddressService(), new NewTicketMail($ticket)),
+        ];
+    }
+
+    /**
+     * @return list<PendingMail>
+     */
+    public function ticketReminderNotificationService(Ticket $ticket): array
     {
         $ticket->loadMissing(['customer', 'activeAgent']);
 
@@ -38,16 +61,13 @@ class TicketNotificationService
             default => [],
         };
 
-        return $this->onlyActive($pending);
+        return $this->onlyActiveTicketRecipientsService($pending);
     }
 
     /**
-     * Who must be told about a new reply: the agent when the customer wrote it,
-     * the customer when staff wrote it.
-     *
      * @return list<PendingMail>
      */
-    public function forReply(Ticket $ticket, TicketReply $reply): array
+    public function ticketReplyNotificationService(Ticket $ticket, TicketReply $reply): array
     {
         $ticket->loadMissing(['customer', 'activeAgent']);
         $reply->loadMissing('user');
@@ -60,69 +80,32 @@ class TicketNotificationService
             $pending = [new PendingMail($ticket->customer, new StaffRepliedMail($ticket, $reply))];
         }
 
-        return $this->withoutActor($pending, $reply->user);
+        return $this->withoutTicketNotificationActorService($pending, $reply->user);
     }
 
     /**
-     * Who must be told when a ticket gets a new agent.
-     *
      * @return list<PendingMail>
      */
-    public function forTicketAssigned(Ticket $ticket, User $agent, User $actor): array
+    public function ticketResolvedNotificationService(Ticket $ticket, User $actor): array
     {
         $ticket->loadMissing('customer');
 
-        return $this->withoutActor(
-            [new PendingMail($agent, new TicketAssignedMail($ticket, $actor))],
-            $actor,
-        );
-    }
-
-    /**
-     * Who must be told when a customer creates a ticket.
-     *
-     * The acknowledgement goes to the customer about their own action on purpose,
-     * so this method does not filter out the actor.
-     *
-     * @return list<PendingMail>
-     */
-    public function forTicketCreated(Ticket $ticket): array
-    {
-        $ticket->loadMissing('customer');
-
-        return [
-            new PendingMail($ticket->customer, new TicketReceivedMail($ticket)),
-            new PendingMail($this->supportAddress(), new NewTicketMail($ticket)),
-        ];
-    }
-
-    /**
-     * Who must be told when a ticket is resolved: the customer.
-     *
-     * @return list<PendingMail>
-     */
-    public function forTicketResolved(Ticket $ticket, User $actor): array
-    {
-        $ticket->loadMissing('customer');
-
-        return $this->withoutActor(
+        return $this->withoutTicketNotificationActorService(
             [new PendingMail($ticket->customer, new TicketResolvedMail($ticket))],
             $actor,
         );
     }
 
-    public function supportAddress(): string
+    public function ticketSupportAddressService(): string
     {
         return (string) config('helpdesk.support_email');
     }
 
     /**
-     * Never email a deactivated account.
-     *
      * @param  list<PendingMail>  $pending
      * @return list<PendingMail>
      */
-    private function onlyActive(array $pending): array
+    private function onlyActiveTicketRecipientsService(array $pending): array
     {
         return array_values(array_filter(
             $pending,
@@ -131,12 +114,10 @@ class TicketNotificationService
     }
 
     /**
-     * The rule "never email a person about their own action", written once.
-     *
      * @param  list<PendingMail>  $pending
      * @return list<PendingMail>
      */
-    private function withoutActor(array $pending, User $actor): array
+    private function withoutTicketNotificationActorService(array $pending, User $actor): array
     {
         return array_values(array_filter(
             $pending,

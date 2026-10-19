@@ -3,18 +3,16 @@
 namespace App\Handlers\User;
 
 use App\Models\User;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use App\Services\UserService;
 
 class UpdateUserRoleHandler
 {
-    public function handle(User $target, User $actor, string $role): User
+    public function __construct(private readonly UserService $userService)
     {
-        if ($target->is($actor)) {
-            throw new AccessDeniedHttpException('You cannot change your own role.');
-        }
+    }
 
-        $target->syncRoles([$role]);
-
-        return $target->load('roles');
+    public function updateUserRoleHandler(User $target, User $actor, string $role): User
+    {
+        return $this->userService->updateUserRoleService($target, $actor, $role);
     }
 }

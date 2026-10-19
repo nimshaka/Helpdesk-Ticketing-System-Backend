@@ -48,31 +48,31 @@ class TicketWorkflowServiceTest extends TestCase
     {
         $service = new TicketWorkflowService;
 
-        $this->assertTrue($service->acceptsReplies(TicketStatus::Open));
-        $this->assertTrue($service->acceptsReplies(TicketStatus::InProgress));
-        $this->assertTrue($service->acceptsReplies(TicketStatus::WaitingForCustomer));
-        $this->assertFalse($service->acceptsReplies(TicketStatus::Resolved));
+        $this->assertTrue($service->ticketAcceptsRepliesService(TicketStatus::Open));
+        $this->assertTrue($service->ticketAcceptsRepliesService(TicketStatus::InProgress));
+        $this->assertTrue($service->ticketAcceptsRepliesService(TicketStatus::WaitingForCustomer));
+        $this->assertFalse($service->ticketAcceptsRepliesService(TicketStatus::Resolved));
     }
 
     #[DataProvider('invalidMoves')]
     public function test_invalid_moves_are_refused(TicketStatus $from, TicketStatus $to): void
     {
-        $this->assertFalse((new TicketWorkflowService)->canTransition($from, $to));
+        $this->assertFalse((new TicketWorkflowService)->ticketCanTransitionService($from, $to));
     }
 
     public function test_only_waiting_tickets_change_status_after_a_customer_reply(): void
     {
         $service = new TicketWorkflowService;
 
-        $this->assertSame(TicketStatus::InProgress, $service->statusAfterCustomerReply(TicketStatus::WaitingForCustomer));
-        $this->assertNull($service->statusAfterCustomerReply(TicketStatus::Open));
-        $this->assertNull($service->statusAfterCustomerReply(TicketStatus::InProgress));
-        $this->assertNull($service->statusAfterCustomerReply(TicketStatus::Resolved));
+        $this->assertSame(TicketStatus::InProgress, $service->ticketStatusAfterCustomerReplyService(TicketStatus::WaitingForCustomer));
+        $this->assertNull($service->ticketStatusAfterCustomerReplyService(TicketStatus::Open));
+        $this->assertNull($service->ticketStatusAfterCustomerReplyService(TicketStatus::InProgress));
+        $this->assertNull($service->ticketStatusAfterCustomerReplyService(TicketStatus::Resolved));
     }
 
     #[DataProvider('validMoves')]
     public function test_valid_moves_are_allowed(TicketStatus $from, TicketStatus $to): void
     {
-        $this->assertTrue((new TicketWorkflowService)->canTransition($from, $to));
+        $this->assertTrue((new TicketWorkflowService)->ticketCanTransitionService($from, $to));
     }
 }

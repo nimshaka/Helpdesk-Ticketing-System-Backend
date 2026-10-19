@@ -13,7 +13,7 @@ class UserNotificationService
      *
      * @return list<PendingMail>
      */
-    public function forRegistration(User $user): array
+    public function userRegistrationNotificationService(User $user): array
     {
         return [new PendingMail($user, new WelcomeMail($user))];
     }

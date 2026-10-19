@@ -13,7 +13,7 @@ class SendTicketReminders extends Command
 
     public function handle(SendTicketRemindersHandler $handler): int
     {
-        $reminded = $handler->handle();
+        $reminded = $handler->sendTicketRemindersCommandHandler();
 
         $this->info("Queued {$reminded} ticket reminder(s).");
 
