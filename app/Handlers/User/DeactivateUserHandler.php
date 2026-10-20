@@ -3,22 +3,16 @@
 namespace App\Handlers\User;
 
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use App\Services\UserService;
 
 class DeactivateUserHandler
 {
-    public function handle(User $target, User $actor): User
+    public function __construct(private readonly UserService $userService)
     {
-        if ($target->is($actor)) {
-            throw new AccessDeniedHttpException('You cannot deactivate your own account.');
-        }
+    }
 
-        DB::transaction(function () use ($target): void {
-            $target->update(['is_active' => false]);
-            $target->tokens()->delete();
-        });
-
-        return $target->load('roles');
+    public function deactivateUserHandler(User $target, User $actor): User
+    {
+        return $this->userService->deactivateUserService($target, $actor);
     }
 }

@@ -11,9 +11,9 @@ use Illuminate\Http\JsonResponse;
 
 class TicketReplyController extends Controller
 {
-    public function store(StoreTicketReplyRequest $request, Ticket $ticket, CreateTicketReplyHandler $handler): JsonResponse
+    public function storeTicketReplyController(StoreTicketReplyRequest $request, Ticket $ticket, CreateTicketReplyHandler $handler): JsonResponse
     {
-        $reply = $handler->handle($request->user(), $ticket, $request->validated('body'));
+        $reply = $handler->createTicketReplyHandler($request->user(), $ticket, $request->validated('body'));
 
         return ApiResponse::success([
             'reply' => new TicketReplyResource($reply),

@@ -21,52 +21,52 @@ use Illuminate\Http\JsonResponse;
 
 class TicketController extends Controller
 {
-    public function assign(AssignTicketRequest $request, Ticket $ticket, AssignTicketHandler $handler): JsonResponse
+    public function assignTicketController(AssignTicketRequest $request, Ticket $ticket, AssignTicketHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new TicketResource($handler->handle($request->user(), $ticket, (int) $request->validated('agent_id'))),
+            new TicketResource($handler->assignTicketHandler($request->user(), $ticket, (int) $request->validated('agent_id'))),
             'Ticket assigned.',
         );
     }
 
-    public function claim(ClaimTicketRequest $request, Ticket $ticket, ClaimTicketHandler $handler): JsonResponse
+    public function claimTicketController(ClaimTicketRequest $request, Ticket $ticket, ClaimTicketHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new TicketResource($handler->handle($request->user(), $ticket)),
+            new TicketResource($handler->claimTicketHandler($request->user(), $ticket)),
             'Ticket claimed.',
         );
     }
 
-    public function index(ListTicketsRequest $request, ListTicketsHandler $handler): JsonResponse
+    public function indexTicketController(ListTicketsRequest $request, ListTicketsHandler $handler): JsonResponse
     {
         return ApiResponse::paginated(
-            $handler->handle($request->user(), $request->validated()),
+            $handler->listTicketsHandler($request->user(), $request->validated()),
             TicketResource::class,
             'Tickets retrieved.',
         );
     }
 
-    public function store(StoreTicketRequest $request, CreateTicketHandler $handler): JsonResponse
+    public function storeTicketController(StoreTicketRequest $request, CreateTicketHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new TicketResource($handler->handle($request->user(), $request->validated())),
+            new TicketResource($handler->createTicketHandler($request->user(), $request->validated())),
             'Ticket created.',
             201,
         );
     }
 
-    public function show(ShowTicketRequest $request, Ticket $ticket, ShowTicketHandler $handler): JsonResponse
+    public function showTicketController(ShowTicketRequest $request, Ticket $ticket, ShowTicketHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new TicketResource($handler->handle($request->user(), $ticket)),
+            new TicketResource($handler->showTicketHandler($request->user(), $ticket)),
             'Ticket retrieved.',
         );
     }
 
-    public function updateStatus(UpdateTicketStatusRequest $request, Ticket $ticket, UpdateTicketStatusHandler $handler): JsonResponse
+    public function updateStatusTicketController(UpdateTicketStatusRequest $request, Ticket $ticket, UpdateTicketStatusHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new TicketResource($handler->handle($request->user(), $ticket, $request->targetStatus())),
+            new TicketResource($handler->updateTicketStatusHandler($request->user(), $ticket, $request->targetStatus())),
             'Ticket status updated.',
         );
     }

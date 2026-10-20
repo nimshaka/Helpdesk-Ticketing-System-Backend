@@ -4,40 +4,34 @@ namespace App\Handlers\Reminder;
 
 use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\Ticket;
-use Illuminate\Database\Eloquent\Collection;
+use App\Services\ReminderService;
 
 class SendTicketRemindersHandler
 {
     use QueuesNotifications;
+
+    public function __construct(private readonly ReminderService $reminderService)
+    {
+    }
 
     /**
      * Queue a reminder for every stale ticket that was not reminded today.
      *
      * @return int how many tickets were reminded
      */
-    public function handle(): int
+    public function sendTicketRemindersCommandHandler(): int
     {
-        $reminded = 0;
+        return $this->reminderService->sendTicketRemindersService(function (Ticket $ticket): bool {
+            $pending = $this->getTicketNotificationService()->ticketReminderNotificationService($ticket);
 
-        Ticket::query()
-            ->needingReminder()
-            ->with(['customer', 'activeAgent'])
-            ->chunkById(100, function (Collection $tickets) use (&$reminded): void {
-                foreach ($tickets as $ticket) {
-                    $pending = $this->notifications()->forReminder($ticket);
+            if ($pending === []) {
+                return false;
+            }
 
-                    if ($pending === []) {
-                        continue;
-                    }
+            $this->queueMailNotifications($pending);
+            $ticket->forceFill(['last_reminded_at' => now()])->saveQuietly();
 
-                    $this->queueMail($pending);
-
-                    $ticket->forceFill(['last_reminded_at' => now()])->saveQuietly();
-
-                    $reminded++;
-                }
-            });
-
-        return $reminded;
+            return true;
+        });
     }
 }

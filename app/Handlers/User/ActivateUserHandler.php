@@ -3,13 +3,16 @@
 namespace App\Handlers\User;
 
 use App\Models\User;
+use App\Services\UserService;
 
 class ActivateUserHandler
 {
-    public function handle(User $target): User
+    public function __construct(private readonly UserService $userService)
     {
-        $target->update(['is_active' => true]);
+    }
 
-        return $target->load('roles');
+    public function activateUserHandler(User $target): User
+    {
+        return $this->userService->activateUserService($target);
     }
 }

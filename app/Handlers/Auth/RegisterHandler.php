@@ -2,40 +2,32 @@
 
 namespace App\Handlers\Auth;
 
-use App\Enums\UserRole;
 use App\Handlers\Concerns\QueuesNotifications;
 use App\Models\User;
 use App\Services\UserNotificationService;
-use Illuminate\Support\Facades\DB;
+use App\Services\UserService;
 
 class RegisterHandler
 {
     use QueuesNotifications;
 
+    public function __construct(private readonly UserService $userService)
+    {
+    }
+
     /**
      * @param  array<string, mixed>  $data
      * @return array{token: string, user: User}
      */
-    public function handle(array $data): array
+    public function registerUserHandler(array $data): array
     {
-        $user = DB::transaction(function () use ($data): User {
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => $data['password'],
-                'is_active' => true,
-            ]);
+        $result = $this->userService->userRegisterService($data);
 
-            $user->assignRole(UserRole::Customer);
-
-            return $user;
-        });
-
-        $this->queueMail($this->userNotifications()->forRegistration($user));
+        $this->queueMailNotifications($this->userNotifications()->userRegistrationNotificationService($result['user']));
 
         return [
-            'token' => $user->createToken('api')->plainTextToken,
-            'user' => $user->load('roles'),
+            'token' => $result['token'],
+            'user' => $result['user'],
         ];
     }
 

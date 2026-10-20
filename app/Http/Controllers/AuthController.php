@@ -15,9 +15,9 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function login(LoginRequest $request, LoginHandler $handler): JsonResponse
+    public function loginUserController(LoginRequest $request, LoginHandler $handler): JsonResponse
     {
-        $result = $handler->handle(
+        $result = $handler->loginUserHandler(
             $request->validated('email'),
             $request->validated('password'),
         );
@@ -25,14 +25,14 @@ class AuthController extends Controller
         return ApiResponse::success($this->tokenPayload($result), 'Login successful.');
     }
 
-    public function logout(Request $request, LogoutHandler $handler): JsonResponse
+    public function logoutUserController(Request $request, LogoutHandler $handler): JsonResponse
     {
-        $handler->handle($request->user());
+        $handler->logoutUserHandler($request->user());
 
         return ApiResponse::success(null, 'Logged out.');
     }
 
-    public function me(Request $request): JsonResponse
+    public function meUserController(Request $request): JsonResponse
     {
         return ApiResponse::success(
             new UserResource($request->user()->load('roles')),
@@ -40,9 +40,9 @@ class AuthController extends Controller
         );
     }
 
-    public function register(RegisterRequest $request, RegisterHandler $handler): JsonResponse
+    public function registerUserController(RegisterRequest $request, RegisterHandler $handler): JsonResponse
     {
-        $result = $handler->handle($request->validated());
+        $result = $handler->registerUserHandler($request->validated());
 
         return ApiResponse::success($this->tokenPayload($result), 'Registration successful.', 201);
     }

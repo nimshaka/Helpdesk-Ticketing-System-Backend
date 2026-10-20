@@ -20,54 +20,54 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function activate(User $user, ActivateUserHandler $handler): JsonResponse
+    public function activateUserController(User $user, ActivateUserHandler $handler): JsonResponse
     {
-        return ApiResponse::success(new UserResource($handler->handle($user)), 'User activated.');
+        return ApiResponse::success(new UserResource($handler->activateUserHandler($user)), 'User activated.');
     }
 
-    public function deactivate(Request $request, User $user, DeactivateUserHandler $handler): JsonResponse
+    public function deactivateUserController(Request $request, User $user, DeactivateUserHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new UserResource($handler->handle($user, $request->user())),
+            new UserResource($handler->deactivateUserHandler($user, $request->user())),
             'User deactivated.',
         );
     }
 
-    public function index(ListUsersRequest $request, ListUsersHandler $handler): JsonResponse
+    public function indexUserController(ListUsersRequest $request, ListUsersHandler $handler): JsonResponse
     {
         return ApiResponse::paginated(
-            $handler->handle($request->validated()),
+            $handler->listUsersHandler($request->validated()),
             UserResource::class,
             'Users retrieved.',
         );
     }
 
-    public function show(User $user): JsonResponse
+    public function showUserController(User $user): JsonResponse
     {
         return ApiResponse::success(new UserResource($user), 'User retrieved.');
     }
 
-    public function store(StoreUserRequest $request, CreateUserHandler $handler): JsonResponse
+    public function storeUserController(StoreUserRequest $request, CreateUserHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new UserResource($handler->handle($request->validated())),
+            new UserResource($handler->createUserHandler($request->validated())),
             'User created.',
             201,
         );
     }
 
-    public function update(UpdateUserRequest $request, User $user, UpdateUserHandler $handler): JsonResponse
+    public function updateUserController(UpdateUserRequest $request, User $user, UpdateUserHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new UserResource($handler->handle($user, $request->validated())),
+            new UserResource($handler->updateUserHandler($user, $request->validated())),
             'User updated.',
         );
     }
 
-    public function updateRole(UpdateUserRoleRequest $request, User $user, UpdateUserRoleHandler $handler): JsonResponse
+    public function updateRoleUserController(UpdateUserRoleRequest $request, User $user, UpdateUserRoleHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            new UserResource($handler->handle($user, $request->user(), $request->validated('role'))),
+            new UserResource($handler->updateUserRoleHandler($user, $request->user(), $request->validated('role'))),
             'User role updated.',
         );
     }

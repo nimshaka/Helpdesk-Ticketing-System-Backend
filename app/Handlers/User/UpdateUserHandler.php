@@ -3,17 +3,19 @@
 namespace App\Handlers\User;
 
 use App\Models\User;
-use Illuminate\Support\Arr;
+use App\Services\UserService;
 
 class UpdateUserHandler
 {
+    public function __construct(private readonly UserService $userService)
+    {
+    }
+
     /**
      * @param  array<string, mixed>  $data
      */
-    public function handle(User $user, array $data): User
+    public function updateUserHandler(User $user, array $data): User
     {
-        $user->update(Arr::only($data, ['name', 'email']));
-
-        return $user->load('roles');
+        return $this->userService->updateUserService($user, $data);
     }
 }

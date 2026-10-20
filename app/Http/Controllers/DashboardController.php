@@ -9,10 +9,10 @@ use Illuminate\Http\JsonResponse;
 
 class DashboardController extends Controller
 {
-    public function index(ShowDashboardRequest $request, GetDashboardHandler $handler): JsonResponse
+    public function indexDashboardController(ShowDashboardRequest $request, GetDashboardHandler $handler): JsonResponse
     {
         return ApiResponse::success(
-            $handler->handle($request->user()),
+            $handler->getDashboardHandler($request->user()),
             'Dashboard retrieved.',
         );
     }

@@ -3,11 +3,16 @@
 namespace App\Handlers\Auth;
 
 use App\Models\User;
+use App\Services\AuthService;
 
 class LogoutHandler
 {
-    public function handle(User $user): void
+    public function __construct(private readonly AuthService $authService)
     {
-        $user->currentAccessToken()->delete();
+    }
+
+    public function logoutUserHandler(User $user): void
+    {
+        $this->authService->userLogoutService($user);
     }
 }

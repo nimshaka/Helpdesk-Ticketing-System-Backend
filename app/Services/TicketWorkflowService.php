@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class TicketWorkflowService
 {
-    public function acceptsReplies(TicketStatus $status): bool
+    public function ticketAcceptsRepliesService(TicketStatus $status): bool
     {
         return $status !== TicketStatus::Resolved;
     }
@@ -18,7 +18,7 @@ class TicketWorkflowService
     /**
      * @return list<TicketStatus>
      */
-    public function allowedTransitions(TicketStatus $from): array
+    public function ticketAllowedTransitionsService(TicketStatus $from): array
     {
         return match ($from) {
             TicketStatus::Open => [TicketStatus::InProgress],
@@ -28,21 +28,21 @@ class TicketWorkflowService
         };
     }
 
-    public function canTransition(TicketStatus $from, TicketStatus $to): bool
+    public function ticketCanTransitionService(TicketStatus $from, TicketStatus $to): bool
     {
-        return in_array($to, $this->allowedTransitions($from), true);
+        return in_array($to, $this->ticketAllowedTransitionsService($from), true);
     }
 
-    public function statusAfterCustomerReply(TicketStatus $current): ?TicketStatus
+    public function ticketStatusAfterCustomerReplyService(TicketStatus $current): ?TicketStatus
     {
         return $current === TicketStatus::WaitingForCustomer ? TicketStatus::InProgress : null;
     }
 
-    public function transition(Ticket $ticket, TicketStatus $to, User $actor, ?Carbon $at = null): Ticket
+    public function ticketTransitionService(Ticket $ticket, TicketStatus $to, User $actor, ?Carbon $at = null): Ticket
     {
         $from = $ticket->status;
 
-        if (! $this->canTransition($from, $to)) {
+        if (! $this->ticketCanTransitionService($from, $to)) {
             throw new ConflictHttpException("A ticket cannot move from {$from->label()} to {$to->label()}.");
         }
 
