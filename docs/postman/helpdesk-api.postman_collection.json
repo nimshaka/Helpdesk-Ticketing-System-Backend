@@ -1,0 +1,699 @@
+{
+  "info": {
+    "_postman_id": "ea2ae9e2-9da5-4a5e-8237-a99bcce49ce5",
+    "name": "Helpdesk API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36707024"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response has the standard shape\", function () {\r\n    const body = pm.response.json();\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body).to.have.property(\"data\");\r\n    pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Login succeeded\", function () {\r\n    pm.response.to.have.status(200);\r\n    pm.expect(body.success).to.eql(true);\r\n});\r\n\r\nif (body.success) {\r\n    pm.environment.set(\"token\", body.data.token);\r\n}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\":\"{{email}}\",\r\n    \"password\":\"{{password}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"password_confirmation\": \"{{password_confirmation}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Has pagination meta\", function () {\r\n    const body = pm.response.json();\r\n    pm.expect(body.data).to.be.an(\"array\");\r\n    pm.expect(body.meta).to.have.property(\"total\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Customer 2",
+                  "disabled": true
+                },
+                {
+                  "key": "role",
+                  "value": "agent",
+                  "disabled": true
+                },
+                {
+                  "key": "per_page",
+                  "value": "3",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "2",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });\r\npm.test(\"Standard shape\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.role).to.eql(\"agent\");\r\n});\r\n\r\nif (body.success) { pm.environment.set(\"user_id\", body.data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Nimshaka\",\r\n  \"email\": \"nimshakaravintha@gmail.com\",\r\n  \"password\": \"password123\",\r\n  \"role\": \"customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Nimshaka\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set role",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"role\": \"customer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}",
+                "role"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/deactivate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}",
+                "deactivate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate user",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/activate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{user_id}}",
+                "activate"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tickets",
+      "item": [
+        {
+          "name": "Create ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });\r\npm.test(\"Ticket starts as open\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.status.value).to.eql(\"open\");\r\n});\r\n\r\nif (body.success) { pm.environment.set(\"ticket_id\", body.data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"subject\":\"laptop is not working\",\r\n    \"description\":\"It shows error E-10.\",\r\n    \"priority\":\"high\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List tickets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Standard shape with pagination\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data).to.be.an(\"array\");\r\n    pm.expect(body.meta).to.have.property(\"total\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Printer",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "in_progress",
+                  "disabled": true
+                },
+                {
+                  "key": "priority",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "assignment",
+                  "value": "unassigned",
+                  "disabled": true
+                },
+                {
+                  "key": "per_page",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Show ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Has the ticket parts\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data).to.have.property(\"replies\");\r\n    pm.expect(body.data).to.have.property(\"status_history\");\r\n});\r\npm.test(\"Replies are in chronological order\", function () {\r\n    const times = body.data.replies.map(r => new Date(r.created_at).getTime());\r\n    pm.expect(times).to.eql([...times].sort((a, b) => a - b));\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Claim ticket",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Ticket is now in progress with an agent\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.status.value).to.eql(\"in_progress\");\r\n    pm.expect(body.data.agent).to.not.eql(null);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/claim",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "claim"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"agent_id\": {{agent_id}}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/assign",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "assign"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update ticket status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Standard shape\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.status).to.have.property(\"label\");\r\n    pm.expect(body.data.status_history).to.be.an(\"array\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\":\"resolved\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add reply",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 201\", function () { pm.response.to.have.status(201); });\r\npm.test(\"Reply and ticket status returned\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.reply).to.have.property(\"author\");\r\n    pm.expect(body.data.ticket.status).to.have.property(\"value\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"body\":\"Any news on this?\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/replies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "replies"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();\r\n\r\npm.test(\"Status is 200\", function () { pm.response.to.have.status(200); });\r\npm.test(\"Standard shape\", function () {\r\n    pm.expect(body.success).to.eql(true);\r\n    pm.expect(body.data.counts).to.have.lengthOf(4);\r\n    pm.expect(body.data.recent_activity).to.be.an(\"array\");\r\n    pm.expect(body.data.recent_activity.length).to.be.at.most(10);\r\n});\r\npm.test(\"The four counts add up to total\", function () {\r\n    const sum = body.data.counts.reduce((a, c) => a + c.count, 0);\r\n    pm.expect(sum).to.eql(body.data.total);\r\n});\r\npm.test(\"Activity is newest first\", function () {\r\n    const times = body.data.recent_activity.map(a => new Date(a.occurred_at).getTime());\r\n    pm.expect(times).to.eql([...times].sort((a, b) => b - a));\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dashboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "dashboard"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "   pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ]
+}
