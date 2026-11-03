@@ -21,7 +21,7 @@ class TicketAttachmentService
      *
      * @param  list<StoredAttachment>  $stored
      */
-    public function discard(array $stored): void
+    public function discardAttachmentsService(array $stored): void
     {
         foreach ($stored as $file) {
             try {
@@ -33,11 +33,11 @@ class TicketAttachmentService
     }
 
     /**
-     * Saves one database row per uploaded file.
+     * Saves one database row per uploaded file. Call it inside the ticket transaction.
      *
      * @param  list<StoredAttachment>  $stored
      */
-    public function record(Ticket $ticket, User $uploader, array $stored): void
+    public function recordAttachmentsService(Ticket $ticket, User $uploader, array $stored): void
     {
         foreach ($stored as $file) {
             $ticket->attachments()->create([
@@ -51,11 +51,11 @@ class TicketAttachmentService
     }
 
     /**
-     * A short-lived link the browser can open directly. Callers must check permission first.
+     * A short-lived link the browser can open directly. Check permission before calling this.
      *
      * @return array{url: string, expires_at: CarbonInterface}
      */
-    public function temporaryUrl(TicketAttachment $attachment, bool $download): array
+    public function temporaryAttachmentUrlService(TicketAttachment $attachment, bool $download): array
     {
         $expiresAt = now()->addMinutes((int) config('helpdesk.attachment_url_minutes'));
 
@@ -73,7 +73,7 @@ class TicketAttachmentService
      * @param  list<UploadedFile>  $files
      * @return list<StoredAttachment>
      */
-    public function upload(array $files): array
+    public function uploadAttachmentsService(array $files): array
     {
         $stored = [];
 
@@ -82,7 +82,7 @@ class TicketAttachmentService
                 $stored[] = $this->uploadOne($file);
             }
         } catch (Throwable $exception) {
-            $this->discard($stored);
+            $this->discardAttachmentsService($stored);
 
             throw $exception;
         }

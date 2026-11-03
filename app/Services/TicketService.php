@@ -12,9 +12,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use App\Models\TicketAttachment;
+use Illuminate\Http\UploadedFile;
+use Throwable;
 
 class TicketService
 {
+
+    public function __construct(private readonly TicketAttachmentService $ticketAttachmentService) {}
+
     public function assignTicketService(User $admin, Ticket $ticket, int $agentId): Ticket
     {
         $agent = User::query()->findOrFail($agentId);
@@ -90,29 +96,42 @@ class TicketService
         return $claimed;
     }
 
-    /**
-     * @param  array{subject: string, description: string, priority: string}  $data
+     /**
+     * @param  array<string, mixed>  $data  subject, description, priority and optionally attachments (uploaded files)
      */
     public function createTicketService(User $customer, array $data): Ticket
     {
-        return DB::transaction(function () use ($customer, $data): Ticket {
-            $ticket = Ticket::create([
-                'subject' => $data['subject'],
-                'description' => $data['description'],
-                'priority' => $data['priority'],
-                'status' => TicketStatus::Open,
-                'customer_id' => $customer->id,
-                'last_activity_at' => now(),
-            ]);
+        // 1. Upload first: the database transaction never waits on the network.
+        $stored = $this->ticketAttachmentService->uploadAttachmentsService($data['attachments'] ?? []);
 
-            $ticket->statusHistories()->create([
-                'changed_by' => $customer->id,
-                'from_status' => null,
-                'to_status' => TicketStatus::Open,
-            ]);
+        try {
+            // 2. Save the ticket, its first status row and the attachment rows, or none of them.
+            return DB::transaction(function () use ($customer, $data, $stored): Ticket {
+                $ticket = Ticket::create([
+                    'subject' => $data['subject'],
+                    'description' => $data['description'],
+                    'priority' => $data['priority'],
+                    'status' => TicketStatus::Open,
+                    'customer_id' => $customer->id,
+                    'last_activity_at' => now(),
+                ]);
 
-            return $ticket->load('customer');
-        });
+                $ticket->statusHistories()->create([
+                    'changed_by' => $customer->id,
+                    'from_status' => null,
+                    'to_status' => TicketStatus::Open,
+                ]);
+
+                $this->ticketAttachmentService->recordAttachmentsService($ticket, $customer, $stored);
+
+                return $ticket->load(['customer', 'attachments.uploader']);
+            });
+        } catch (Throwable $exception) {
+            // 3. The transaction failed, so remove the files that no row points to.
+            $this->ticketAttachmentService->discardAttachmentsService($stored);
+
+            throw $exception;
+        }
     }
 
     /**
@@ -144,13 +163,15 @@ class TicketService
         $relations = [
             'customer',
             'activeAgent',
+            'attachments' => fn ($query) => $query->orderBy('id'),
+            'attachments.uploader',
             'replies' => fn ($query) => $query->orderBy('created_at')->orderBy('id'),
             'replies.user.roles',
             'statusHistories' => fn ($query) => $query->orderBy('id'),
             'statusHistories.changedBy',
         ];
 
-        if ($user->hasRole(\App\Enums\UserRole::Admin)) {
+        if ($user->hasRole(UserRole::Admin)) {
             $relations['agents'] = fn ($query) => $query->orderByPivot('assigned_at');
         }
 
