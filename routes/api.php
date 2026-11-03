@@ -3,9 +3,9 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketReplyController;
-use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
