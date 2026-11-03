@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketReplyController;
+use App\Http\Controllers\TicketAttachmentController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +41,5 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     Route::post('{ticket}/claim', [TicketController::class, 'claimTicketController'])->whereNumber('ticket')->middleware('role:agent');
     Route::post('{ticket}/replies', [TicketReplyController::class, 'storeTicketReplyController'])->whereNumber('ticket');
     Route::patch('{ticket}/status', [TicketController::class, 'updateStatusTicketController'])->whereNumber('ticket')->middleware('role:admin|agent');
+    Route::get('{ticket}/attachments/{attachment}', [TicketAttachmentController::class, 'show'])->whereNumber(['ticket', 'attachment'])->scopeBindings();
 });

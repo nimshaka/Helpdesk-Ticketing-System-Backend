@@ -7,7 +7,9 @@ use App\Services\TicketAttachmentService;
 
 class ShowTicketAttachmentHandler
 {
-    public function __construct(private readonly TicketAttachmentService $ticketAttachmentService) {}
+    public function __construct(private readonly TicketAttachmentService $ticketAttachmentService)
+    {
+    }
 
     /**
      * @return array<string, mixed>

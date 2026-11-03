@@ -1,24 +1,25 @@
 <?php
 
-namespace App\Handlers\Ticket;
+namespace App\Http\Controllers;
 
+use App\Handlers\Ticket\ShowTicketAttachmentHandler;
+use App\Http\Requests\Ticket\ShowTicketAttachmentRequest;
+use App\Models\Ticket;
 use App\Models\TicketAttachment;
-use App\Services\TicketAttachmentService;
+use App\Support\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
-class ShowTicketAttachmentHandler
+class TicketAttachmentController extends Controller
 {
-    public function __construct(private readonly TicketAttachmentService $ticketAttachmentService) {}
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function showTicketAttachmentHandler(TicketAttachment $attachment, bool $download): array
-    {
-        return [
-            ...$this->ticketAttachmentService->temporaryAttachmentUrlService($attachment, $download),
-            'name' => $attachment->original_name,
-            'mime_type' => $attachment->mime_type,
-            'download' => $download,
-        ];
+    public function show(
+        ShowTicketAttachmentRequest $request,
+        Ticket $ticket,
+        TicketAttachment $attachment,
+        ShowTicketAttachmentHandler $handler,
+    ): JsonResponse {
+        return ApiResponse::success(
+            $handler->showTicketAttachmentHandler($attachment, $request->boolean('download')),
+            'Attachment link created.',
+        );
     }
 }

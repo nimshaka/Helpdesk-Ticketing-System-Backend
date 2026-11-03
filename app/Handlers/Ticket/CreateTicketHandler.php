@@ -16,6 +16,9 @@ class CreateTicketHandler
     /**
      * @param  array{subject: string, description: string, priority: string}  $data
      */
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public function createTicketHandler(User $customer, array $data): Ticket
     {
         $ticket = $this->ticketService->createTicketService($customer, $data);
