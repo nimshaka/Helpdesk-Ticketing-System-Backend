@@ -11,9 +11,7 @@ class ClaimTicketHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly TicketService $ticketService)
-    {
-    }
+    public function __construct(private readonly TicketService $ticketService) {}
 
     public function claimTicketHandler(User $agent, Ticket $ticket): Ticket
     {

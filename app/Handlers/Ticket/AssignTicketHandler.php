@@ -11,9 +11,7 @@ class AssignTicketHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly TicketService $ticketService)
-    {
-    }
+    public function __construct(private readonly TicketService $ticketService) {}
 
     public function assignTicketHandler(User $admin, Ticket $ticket, int $agentId): Ticket
     {

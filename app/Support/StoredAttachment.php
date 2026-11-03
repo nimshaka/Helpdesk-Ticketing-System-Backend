@@ -9,6 +9,5 @@ final readonly class StoredAttachment
         public string $originalName,
         public string $mimeType,
         public int $size,
-    ) {
-    }
+    ) {}
 }

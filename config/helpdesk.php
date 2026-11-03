@@ -23,7 +23,7 @@ return [
     */
     'support_email' => env('HELPDESK_SUPPORT_EMAIL', 'support@helpdesk.test'),
 
-        /*
+    /*
     | Ticket attachments: where files are stored, how many, how big, which types,
     | and how long a signed link stays valid.
     */

@@ -10,9 +10,7 @@ class SendTicketRemindersHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly ReminderService $reminderService)
-    {
-    }
+    public function __construct(private readonly ReminderService $reminderService) {}
 
     /**
      * Queue a reminder for every stale ticket that was not reminded today.

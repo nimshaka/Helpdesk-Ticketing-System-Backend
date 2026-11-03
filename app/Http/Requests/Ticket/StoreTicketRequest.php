@@ -10,7 +10,6 @@ use Illuminate\Validation\Rules\File;
 
 class StoreTicketRequest extends FormRequest
 {
-
     /**
      * @return array<string, string>
      */
@@ -33,7 +32,7 @@ class StoreTicketRequest extends FormRequest
             'subject' => 'required|string|max:255',
             'description' => 'required|string|max:5000',
             'priority' => ['required', Rule::enum(TicketPriority::class)],
-            'attachments' => ['sometimes', 'array', 'max:' . config('helpdesk.attachment_max_files')],
+            'attachments' => ['sometimes', 'array', 'max:'.config('helpdesk.attachment_max_files')],
             'attachments.*' => [
                 'file',
                 File::types(config('helpdesk.attachment_types'))->max(config('helpdesk.attachment_max_kb')),

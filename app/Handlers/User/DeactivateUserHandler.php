@@ -7,9 +7,7 @@ use App\Services\UserService;
 
 class DeactivateUserHandler
 {
-    public function __construct(private readonly UserService $userService)
-    {
-    }
+    public function __construct(private readonly UserService $userService) {}
 
     public function deactivateUserHandler(User $target, User $actor): User
     {

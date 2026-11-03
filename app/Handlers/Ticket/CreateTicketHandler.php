@@ -11,9 +11,7 @@ class CreateTicketHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly TicketService $ticketService)
-    {
-    }
+    public function __construct(private readonly TicketService $ticketService) {}
 
     /**
      * @param  array{subject: string, description: string, priority: string}  $data

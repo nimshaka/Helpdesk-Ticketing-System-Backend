@@ -7,9 +7,7 @@ use App\Services\DashboardService;
 
 class GetDashboardHandler
 {
-    public function __construct(private readonly DashboardService $dashboardService)
-    {
-    }
+    public function __construct(private readonly DashboardService $dashboardService) {}
 
     /**
      * @return array<string, mixed>

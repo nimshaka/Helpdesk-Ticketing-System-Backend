@@ -12,13 +12,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use App\Models\TicketAttachment;
-use Illuminate\Http\UploadedFile;
 use Throwable;
 
 class TicketService
 {
-
     public function __construct(private readonly TicketAttachmentService $ticketAttachmentService) {}
 
     public function assignTicketService(User $admin, Ticket $ticket, int $agentId): Ticket
@@ -96,7 +93,7 @@ class TicketService
         return $claimed;
     }
 
-     /**
+    /**
      * @param  array<string, mixed>  $data  subject, description, priority and optionally attachments (uploaded files)
      */
     public function createTicketService(User $customer, array $data): Ticket
@@ -197,7 +194,7 @@ class TicketService
 
     private function stillAllowed(User $actor, Ticket $ticket): bool
     {
-        return $actor->hasRole(\App\Enums\UserRole::Admin)
+        return $actor->hasRole(UserRole::Admin)
             || $ticket->activeAgent()->where('users.id', $actor->id)->exists();
     }
 

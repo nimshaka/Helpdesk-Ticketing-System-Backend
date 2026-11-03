@@ -7,9 +7,7 @@ use App\Services\UserService;
 
 class UpdateUserHandler
 {
-    public function __construct(private readonly UserService $userService)
-    {
-    }
+    public function __construct(private readonly UserService $userService) {}
 
     /**
      * @param  array<string, mixed>  $data
