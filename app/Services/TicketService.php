@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\TicketStatus;
+use App\Enums\UserRole;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,7 +19,7 @@ class TicketService
     {
         $agent = User::query()->findOrFail($agentId);
 
-        if (! $agent->hasRole(\App\Enums\UserRole::Agent) || ! $agent->is_active) {
+        if (! $agent->hasRole(UserRole::Agent) || ! $agent->is_active) {
             throw ValidationException::withMessages([
                 'agent_id' => ['The selected user must be an active agent.'],
             ]);
