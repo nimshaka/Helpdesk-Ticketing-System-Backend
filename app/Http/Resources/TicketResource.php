@@ -38,6 +38,7 @@ class TicketResource extends JsonResource
                 ];
             }),
             'replies' => TicketReplyResource::collection($this->whenLoaded('replies')),
+            'attachments' => TicketAttachmentResource::collection($this->whenLoaded('attachments')),
             'status_history' => TicketStatusHistoryResource::collection($this->whenLoaded('statusHistories')),
             'assignments' => $this->whenLoaded('agents', fn () => $this->agents->map(fn ($agent) => [
                 'agent' => [

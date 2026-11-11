@@ -7,9 +7,7 @@ use App\Services\UserService;
 
 class ActivateUserHandler
 {
-    public function __construct(private readonly UserService $userService)
-    {
-    }
+    public function __construct(private readonly UserService $userService) {}
 
     public function activateUserHandler(User $target): User
     {

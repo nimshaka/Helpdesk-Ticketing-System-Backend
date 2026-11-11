@@ -12,9 +12,7 @@ class UpdateTicketStatusHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly TicketService $ticketService)
-    {
-    }
+    public function __construct(private readonly TicketService $ticketService) {}
 
     public function updateTicketStatusHandler(User $actor, Ticket $ticket, TicketStatus $to): Ticket
     {

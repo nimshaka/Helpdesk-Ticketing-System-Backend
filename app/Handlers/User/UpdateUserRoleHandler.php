@@ -7,9 +7,7 @@ use App\Services\UserService;
 
 class UpdateUserRoleHandler
 {
-    public function __construct(private readonly UserService $userService)
-    {
-    }
+    public function __construct(private readonly UserService $userService) {}
 
     public function updateUserRoleHandler(User $target, User $actor, string $role): User
     {

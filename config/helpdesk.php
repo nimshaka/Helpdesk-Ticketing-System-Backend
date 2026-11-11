@@ -23,4 +23,14 @@ return [
     */
     'support_email' => env('HELPDESK_SUPPORT_EMAIL', 'support@helpdesk.test'),
 
+    /*
+    | Ticket attachments: where files are stored, how many, how big, which types,
+    | and how long a signed link stays valid.
+    */
+    'attachment_disk' => env('HELPDESK_ATTACHMENT_DISK', 'r2'),
+    'attachment_max_files' => 5,
+    'attachment_max_kb' => 5120,
+    'attachment_types' => ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+    'attachment_url_minutes' => (int) env('HELPDESK_ATTACHMENT_URL_MINUTES', 10),
+
 ];

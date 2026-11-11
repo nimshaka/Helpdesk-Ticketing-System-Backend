@@ -8,9 +8,7 @@ use App\Services\TicketService;
 
 class ShowTicketHandler
 {
-    public function __construct(private readonly TicketService $ticketService)
-    {
-    }
+    public function __construct(private readonly TicketService $ticketService) {}
 
     public function showTicketHandler(User $user, Ticket $ticket): Ticket
     {

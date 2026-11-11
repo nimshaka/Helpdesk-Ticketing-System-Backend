@@ -7,9 +7,7 @@ use App\Services\AuthService;
 
 class LoginHandler
 {
-    public function __construct(private readonly AuthService $authService)
-    {
-    }
+    public function __construct(private readonly AuthService $authService) {}
 
     /**
      * @return array{token: string, user: User}

@@ -12,9 +12,7 @@ class CreateTicketReplyHandler
 {
     use QueuesNotifications;
 
-    public function __construct(private readonly TicketReplyService $ticketReplyService)
-    {
-    }
+    public function __construct(private readonly TicketReplyService $ticketReplyService) {}
 
     public function createTicketReplyHandler(User $author, Ticket $ticket, string $body): TicketReply
     {

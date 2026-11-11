@@ -48,6 +48,11 @@ class Ticket extends Model
             ->withPivot('assigned_by', 'assigned_at', 'unassigned_at');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class);
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');
